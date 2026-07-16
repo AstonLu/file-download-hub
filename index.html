@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="從 GitHub 儲存庫快速下載公開檔案。">
+    <title>檔案下載中心</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="hero">
+        <p class="eyebrow">PUBLIC FILES</p>
+        <h1>檔案下載中心</h1>
+        <p class="intro">選擇需要的檔案，即可直接下載。</p>
+      </header>
+
+      <section class="file-section" aria-labelledby="file-list-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="file-list-title">可下載檔案</h2>
+            <p id="file-count" class="file-count" aria-live="polite"></p>
+          </div>
+          <button id="refresh-button" class="refresh-button" type="button" hidden>
+            重新整理
+          </button>
+        </div>
+
+        <div id="status" class="status" role="status" aria-live="polite">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>正在載入檔案…</span>
+        </div>
+        <ul id="file-list" class="file-list" aria-label="檔案清單" hidden></ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>檔案由 GitHub 安全託管</p>
+    </footer>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
