@@ -1,0 +1,51 @@
+name: Assemble uploaded file
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "files/.virtual/vasp-law-draft-2026/**"
+      - ".github/workflows/assemble-upload.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Assemble and verify Excel file
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_dir="files/.virtual/vasp-law-draft-2026"
+          target="files/虛擬資產服務法草案_法條整理(1).xlsx"
+
+          test -d "$source_dir"
+          find "$source_dir" -maxdepth 1 -type f -name 'part-*.b64' -print0 \
+            | sort -z \
+            | xargs -0 cat \
+            | base64 --decode > "$target"
+
+          actual_size="$(stat -c%s "$target")"
+          actual_sha="$(sha256sum "$target" | cut -d' ' -f1)"
+          test "$actual_size" = "38734"
+          test "$actual_sha" = "8e52839d7d91a1d60762e2456c43e81b7c4cff447d3f106d7a5f5a14b88235c0"
+
+      - name: Commit assembled file
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -r "files/.virtual/vasp-law-draft-2026"
+          git add "files/虛擬資產服務法草案_法條整理(1).xlsx"
+          git commit -m "Add virtual asset service act spreadsheet"
+          git push
