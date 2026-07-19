@@ -3,17 +3,77 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="從 GitHub 儲存庫快速下載公開檔案。">
+    <meta name="description" content="從 GitHub 儲存庫快速上傳與下載公開檔案。">
     <title>檔案下載中心</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <main class="page-shell">
       <header class="hero">
-        <p class="eyebrow">PUBLIC FILES</p>
+        <p class="eyebrow">PERSONAL FILE HUB</p>
         <h1>檔案下載中心</h1>
-        <p class="intro">選擇需要的檔案，即可直接下載。</p>
+        <p class="intro">從私人裝置上傳檔案，完成後即可在下方一鍵下載。</p>
       </header>
+
+      <section class="upload-section" aria-labelledby="upload-title">
+        <div class="section-heading upload-heading">
+          <div>
+            <h2 id="upload-title">上傳檔案</h2>
+            <p id="upload-mode" class="file-count">正在確認上傳模式…</p>
+          </div>
+          <span class="private-badge">私人裝置</span>
+        </div>
+
+        <div class="upload-body">
+          <div id="token-panel" class="token-panel" hidden>
+            <label for="github-token">GitHub Fine-grained Token</label>
+            <div class="token-row">
+              <input
+                id="github-token"
+                type="password"
+                inputmode="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="github_pat_…"
+              >
+              <button id="toggle-token" class="secondary-button" type="button">顯示</button>
+              <button id="save-token" class="secondary-button" type="button">儲存</button>
+            </div>
+            <div class="token-options">
+              <label class="checkbox-label">
+                <input id="remember-token" type="checkbox">
+                僅儲存在這台裝置
+              </label>
+              <button id="clear-token" class="text-button" type="button">清除 Token</button>
+            </div>
+            <p class="security-note">Token 只會從此瀏覽器傳送至 GitHub API。請限制它只能寫入這個 repository。</p>
+          </div>
+
+          <div
+            id="drop-zone"
+            class="drop-zone"
+            tabindex="0"
+            role="button"
+            aria-label="選擇或拖曳檔案到此處上傳"
+          >
+            <input id="file-input" type="file" hidden>
+            <div class="upload-icon" aria-hidden="true">↑</div>
+            <p id="selected-file-name" class="drop-title">選擇檔案或拖曳到這裡</p>
+            <p id="selected-file-meta" class="drop-meta">單一檔案上限 25 MB，檔案會公開出現在下載清單</p>
+            <button id="choose-file" class="secondary-button choose-button" type="button">選擇檔案</button>
+          </div>
+
+          <div class="upload-actions">
+            <button id="upload-button" class="upload-button" type="button" disabled>開始上傳</button>
+            <button id="login-button" class="secondary-button" type="button" hidden>登入上傳服務</button>
+          </div>
+
+          <div id="upload-progress" class="upload-progress" hidden>
+            <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+            <p id="upload-status" class="upload-status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
 
       <section class="file-section" aria-labelledby="file-list-title">
         <div class="section-heading">
@@ -35,9 +95,10 @@
     </main>
 
     <footer>
-      <p>檔案由 GitHub 安全託管</p>
+      <p>下載檔案公開託管於 GitHub；請勿上傳機密資訊</p>
     </footer>
 
+    <script src="config.js"></script>
     <script src="app.js" defer></script>
   </body>
 </html>
