@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="私人檔案上傳工具。">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#f4f7fb">
+    <title>私人上傳｜檔案下載中心</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="upload-page">
+    <main class="page-shell upload-shell">
+      <a class="back-link" href="index.html" aria-label="返回檔案下載中心">
+        <span aria-hidden="true">←</span>
+        返回下載中心
+      </a>
+
+      <header class="hero upload-hero">
+        <p class="eyebrow">PRIVATE DROP</p>
+        <h1>私人上傳</h1>
+        <p class="intro">選取檔案後直接寫入下載中心。</p>
+      </header>
+
+      <section class="upload-section" aria-labelledby="upload-title">
+        <div class="section-heading upload-heading">
+          <div>
+            <h2 id="upload-title">上傳檔案</h2>
+            <p id="upload-mode" class="file-count">正在確認上傳權限…</p>
+          </div>
+          <div class="credential-controls">
+            <span id="credential-status" class="credential-badge">未連接</span>
+            <button
+              id="credential-toggle"
+              class="credential-toggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="credential-panel"
+            >
+              <span class="credential-toggle-dot" aria-hidden="true"></span>
+              憑證
+            </button>
+          </div>
+        </div>
+
+        <div class="upload-body">
+          <div id="credential-panel" class="credential-panel" hidden>
+            <div class="credential-copy">
+              <p class="credential-title">首次設定上傳權限</p>
+              <p class="credential-description">
+                Token 儲存在這台裝置的瀏覽器中，之後進入本頁不會再次顯示輸入欄位。
+              </p>
+            </div>
+
+            <label class="sr-only" for="github-token">GitHub Fine-grained Token</label>
+            <div class="credential-input-row">
+              <input
+                id="github-token"
+                type="password"
+                inputmode="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="貼上 github_pat_…"
+              >
+              <button id="toggle-token" class="secondary-button" type="button">顯示</button>
+            </div>
+
+            <div class="credential-actions-row">
+              <button id="save-token" class="upload-button compact-button" type="button">
+                儲存至此裝置
+              </button>
+              <button id="clear-token" class="text-button" type="button">清除已儲存憑證</button>
+            </div>
+            <p class="security-note">
+              此設定只在目前裝置持續保存；清除瀏覽器網站資料或 Token 到期後需重新設定。
+            </p>
+          </div>
+
+          <div
+            id="drop-zone"
+            class="drop-zone"
+            tabindex="0"
+            role="button"
+            aria-label="選擇或拖曳檔案到此處上傳"
+          >
+            <input id="file-input" type="file" hidden>
+            <div class="upload-icon" aria-hidden="true">↑</div>
+            <p id="selected-file-name" class="drop-title">選擇檔案或拖曳到這裡</p>
+            <p id="selected-file-meta" class="drop-meta">單一檔案上限 25 MB</p>
+            <button id="choose-file" class="secondary-button choose-button" type="button">選擇檔案</button>
+          </div>
+
+          <div class="upload-actions">
+            <button id="upload-button" class="upload-button" type="button" disabled>開始上傳</button>
+            <button id="login-button" class="secondary-button" type="button" hidden>登入上傳服務</button>
+          </div>
+
+          <div id="upload-progress" class="upload-progress" hidden>
+            <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+            <p id="upload-status" class="upload-status" role="status" aria-live="polite"></p>
+          </div>
+
+          <a id="post-upload-link" class="post-upload-link" href="index.html" hidden>
+            回到首頁查看檔案
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>請勿上傳機密資訊</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="upload.js" defer></script>
+  </body>
+</html>
