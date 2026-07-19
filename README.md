@@ -25,7 +25,7 @@ file-download-hub/
 ├── config.js        # 可選的安全上傳 API 設定
 ├── styles.css       # 深淺色、桌面與行動版共用視覺系統
 ├── manifest.webmanifest # iOS / PWA 設定
-├── assets/icons/    # 待加入的正式 App icon 資產
+├── icons/           # 已核准母圖產生的 App icon 資產
 ├── worker/          # Cloudflare Worker 安全上傳服務
 ├── .nojekyll        # 停用 GitHub Pages 的 Jekyll 處理
 └── files/           # 公開下載檔案
@@ -55,13 +55,16 @@ file-download-hub/
 - repository 與 `/files` 內檔案皆為公開存取，請勿上傳機密資料
 - 網頁上傳限制為單檔 25 MB
 
-## PWA 與 iPhone Home Screen
+## PWA 與 iPhone Home Screen 圖示
 
-網站已具備 standalone manifest、theme color、Apple Web App meta tags 與 `apple-touch-icon` 參照。正式圖示尚未建立，請將下列 PNG 資產放入 [`assets/icons/`](assets/icons/README.md)：
+已核准的母圖保存在此工作流程的附件，並以 Lanczos 縮放輸出至 [`icons/`](icons/)。所有成品均為不透明 sRGB PNG，不含新增邊框、圓角、文字、透明邊界或額外裁切：
 
-- `apple-touch-icon.png`（180 × 180）
-- `app-icon-192.png`（192 × 192）
-- `app-icon-512.png`（512 × 512）
-- `source/app-icon-source-1024.png`（1024 × 1024 原始檔）
+- `app-icon-1024.png` — 1024 × 1024 母圖輸出
+- `apple-touch-icon.png` — 180 × 180，供 iPhone / iPad Home Screen 使用
+- `app-icon-192.png` — 192 × 192，供 PWA manifest 使用
+- `app-icon-512.png` — 512 × 512，供 PWA manifest 使用
+- `favicon-32.png` — 32 × 32，供瀏覽器分頁使用
 
-路徑皆為相對參照，可在 GitHub Pages 的 `/file-download-hub/` 子目錄正常運作。圖示資產尚未生成，因此未以臨時圖檔取代正式視覺識別。
+`index.html` 與 `upload.html` 均透過相對 `icons/` 路徑載入 manifest、Apple Touch Icon 與 favicon，因此在 GitHub Pages 的 `/file-download-hub/` 子目錄可正常運作。
+
+未來要更換圖示時，請以新的核准母圖重新產生上述五個檔案，保持檔名與尺寸不變，並把 `?v=1` 中的版本號遞增（例如 `?v=2`）。已經加入 iPhone Home Screen 的舊捷徑可能仍保留舊快取圖示；請先移除該捷徑，再重新「加入主畫面」。
