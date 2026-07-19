@@ -1,0 +1,11 @@
+name = "file-download-hub-upload"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://astonlu.github.io"
+ALLOWED_EMAIL = "your-email@example.com"
+GITHUB_OWNER = "AstonLu"
+GITHUB_REPOSITORY = "file-download-hub"
+GITHUB_BRANCH = "main"
+GITHUB_DIRECTORY = "files"
