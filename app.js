@@ -88,7 +88,7 @@ function makeFileItem(file) {
   const button = document.createElement("button");
   button.className = "download-button";
   button.type = "button";
-  button.textContent = "下載檔案";
+  button.textContent = "下載";
   button.setAttribute("aria-label", `下載 ${file.name}`);
   button.addEventListener("click", () => downloadFile(file, button));
 
@@ -100,7 +100,7 @@ function makeFileItem(file) {
 
 function renderFiles(files) {
   fileListElement.replaceChildren(...files.map(makeFileItem));
-  fileCountElement.textContent = `共 ${files.length} 個檔案`;
+  fileCountElement.textContent = files.length === 1 ? "1 個檔案" : `${files.length} 個檔案`;
   statusElement.hidden = true;
   fileListElement.hidden = false;
 }
@@ -109,7 +109,7 @@ async function loadFiles() {
   fileListElement.hidden = true;
   refreshButton.hidden = true;
   fileCountElement.textContent = "";
-  showStatus("正在載入檔案…", { loading: true });
+  showStatus("正在整理檔案…", { loading: true });
 
   try {
     const response = await fetch(FILES_ENDPOINT, {
@@ -137,15 +137,15 @@ async function loadFiles() {
       );
 
     if (files.length === 0) {
-      fileCountElement.textContent = "共 0 個檔案";
-      showStatus("目前沒有可下載的檔案。");
+      fileCountElement.textContent = "尚無檔案";
+      showStatus("這個檔案庫目前仍是空的。");
       return;
     }
 
     renderFiles(files);
   } catch (error) {
     console.error("載入檔案失敗：", error);
-    showStatus("無法載入檔案，請稍後再試。", { error: true });
+    showStatus("暫時無法讀取檔案，請稍後重試。", { error: true });
     refreshButton.hidden = false;
   }
 }

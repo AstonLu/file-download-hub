@@ -1,13 +1,12 @@
-# 檔案下載中心
+# 檔案庫
 
-以 GitHub Pages 架設的個人公開檔案下載網站。首頁會直接讀取 GitHub Contents API，因此新增檔案後不需要維護 manifest 或執行建置指令。
+以 GitHub Pages 架設的個人公開檔案庫。首頁會直接讀取 GitHub Contents API，因此新增檔案後不需要維護清單或執行建置指令。
 
 網站 URL：<https://astonlu.github.io/file-download-hub/>
 
 ## 使用方式
 
-- 首頁只顯示公開下載清單
-- 標題區右上角的低對比星點圖示會進入私人上傳頁
+- 首頁只顯示公開下載清單；標題旁的低對比星群是供擁有者使用的私人入口
 - 上傳頁網址為 `/upload.html`，並設定 `noindex`
 - 首次在裝置上使用時輸入 fine-grained GitHub Token
 - Token 只保存在該裝置的瀏覽器 `localStorage`，之後不再顯示輸入欄位
@@ -24,7 +23,9 @@ file-download-hub/
 ├── upload.html      # 私人上傳頁
 ├── upload.js        # 裝置憑證與上傳邏輯
 ├── config.js        # 可選的安全上傳 API 設定
-├── styles.css       # 桌面與行動版樣式
+├── styles.css       # 深淺色、桌面與行動版共用視覺系統
+├── manifest.webmanifest # iOS / PWA 設定
+├── assets/icons/    # 待加入的正式 App icon 資產
 ├── worker/          # Cloudflare Worker 安全上傳服務
 ├── .nojekyll        # 停用 GitHub Pages 的 Jekyll 處理
 └── files/           # 公開下載檔案
@@ -53,3 +54,14 @@ file-download-hub/
 - 使用 GitHub binary blob、tree、commit 與 ref 流程，避免文字分段重組
 - repository 與 `/files` 內檔案皆為公開存取，請勿上傳機密資料
 - 網頁上傳限制為單檔 25 MB
+
+## PWA 與 iPhone Home Screen
+
+網站已具備 standalone manifest、theme color、Apple Web App meta tags 與 `apple-touch-icon` 參照。正式圖示尚未建立，請將下列 PNG 資產放入 [`assets/icons/`](assets/icons/README.md)：
+
+- `apple-touch-icon.png`（180 × 180）
+- `app-icon-192.png`（192 × 192）
+- `app-icon-512.png`（512 × 512）
+- `source/app-icon-source-1024.png`（1024 × 1024 原始檔）
+
+路徑皆為相對參照，可在 GitHub Pages 的 `/file-download-hub/` 子目錄正常運作。圖示資產尚未生成，因此未以臨時圖檔取代正式視覺識別。
