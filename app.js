@@ -11,7 +11,12 @@ const statusElement = document.querySelector("#status");
 const fileListElement = document.querySelector("#file-list");
 const fileCountElement = document.querySelector("#file-count");
 const refreshButton = document.querySelector("#refresh-button");
+const selectAllControl = document.querySelector("#select-all-control");
+const selectAllCheckbox = document.querySelector("#select-all-checkbox");
+const downloadSelectedButton = document.querySelector("#download-selected-button");
+const deleteSelectedButton = document.querySelector("#delete-selected-button");
 const deleteDialog = document.querySelector("#delete-dialog");
+const deleteDialogTitle = document.querySelector("#delete-dialog-title");
 const deleteDialogFilename = document.querySelector("#delete-dialog-filename");
 const deleteDialogMessage = document.querySelector("#delete-dialog-message");
 const deleteCancelButton = document.querySelector("#delete-cancel-button");
@@ -21,6 +26,8 @@ const API_VERSION = "2022-11-28";
 const UPLOAD_API = String(window.FILE_HUB_CONFIG?.uploadApi || "").replace(/\/$/, "");
 
 let pendingDeletion = null;
+let currentFiles = [];
+const selectedPaths = new Set();
 
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes < 0) return "大小不明";
@@ -72,6 +79,37 @@ function githubHeaders(token) {
   };
 }
 
+function getSelectedFiles() {
+  return currentFiles.filter((file) => selectedPaths.has(file.path));
+}
+
+function updateSelectionControls() {
+  const selectedCount = getSelectedFiles().length;
+  const allSelected = currentFiles.length > 0 && selectedCount === currentFiles.length;
+
+  selectAllControl.hidden = currentFiles.length === 0;
+  selectAllCheckbox.checked = allSelected;
+  selectAllCheckbox.indeterminate = selectedCount > 0 && !allSelected;
+  selectAllCheckbox.setAttribute(
+    "aria-label",
+    allSelected ? "取消全選" : "全選所有檔案",
+  );
+
+  downloadSelectedButton.hidden = selectedCount === 0;
+  downloadSelectedButton.textContent = `下載已選（${selectedCount}）`;
+  deleteSelectedButton.hidden = selectedCount === 0 || !canDeleteFiles();
+  deleteSelectedButton.textContent = `刪除已選（${selectedCount}）`;
+}
+
+function setFileSelected(file, selected) {
+  if (selected) {
+    selectedPaths.add(file.path);
+  } else {
+    selectedPaths.delete(file.path);
+  }
+  updateSelectionControls();
+}
+
 function showStatus(message, { loading = false, error = false } = {}) {
   statusElement.replaceChildren();
   statusElement.classList.toggle("error", error);
@@ -114,6 +152,20 @@ function makeFileItem(file) {
   const actions = document.createElement("div");
   actions.className = "file-actions";
 
+  const selectLabel = document.createElement("label");
+  selectLabel.className = "file-select-control";
+  selectLabel.title = `選取 ${file.name}`;
+
+  const selectCheckbox = document.createElement("input");
+  selectCheckbox.type = "checkbox";
+  selectCheckbox.checked = selectedPaths.has(file.path);
+  selectCheckbox.setAttribute("aria-label", `選取 ${file.name}`);
+  selectCheckbox.addEventListener("change", () => {
+    setFileSelected(file, selectCheckbox.checked);
+  });
+  selectLabel.append(selectCheckbox);
+  actions.append(selectLabel);
+
   const downloadButton = document.createElement("button");
   downloadButton.className = "download-button";
   downloadButton.type = "button";
@@ -129,7 +181,7 @@ function makeFileItem(file) {
     deleteButton.setAttribute("aria-label", `刪除 ${file.name}`);
     deleteButton.title = "刪除檔案";
     deleteButton.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4.8c0-.44.36-.8.8-.8h4.4c.44 0 .8.36.8.8V7m-8.7 0 .72 12.05c.03.54.48.95 1.02.95h8.12c.54 0 .99-.41 1.02-.95L17.9 7M10 10.5v5.75m4-5.75v5.75" stroke="currentColor" stroke-width="1.65" stroke-linecap="round"/></svg>';
-    deleteButton.addEventListener("click", () => openDeleteDialog(file, deleteButton));
+    deleteButton.addEventListener("click", () => openDeleteDialog([file], [deleteButton]));
     actions.append(deleteButton);
   }
 
@@ -140,15 +192,24 @@ function makeFileItem(file) {
 }
 
 function renderFiles(files) {
+  currentFiles = files;
+  const validPaths = new Set(files.map((file) => file.path));
+  for (const path of selectedPaths) {
+    if (!validPaths.has(path)) selectedPaths.delete(path);
+  }
   fileListElement.replaceChildren(...files.map(makeFileItem));
   fileCountElement.textContent = files.length === 1 ? "1 個檔案" : `${files.length} 個檔案`;
   statusElement.hidden = true;
   fileListElement.hidden = false;
+  updateSelectionControls();
 }
 
 async function loadFiles() {
   fileListElement.hidden = true;
   refreshButton.hidden = true;
+  currentFiles = [];
+  selectedPaths.clear();
+  updateSelectionControls();
   fileCountElement.textContent = "";
   showStatus("正在整理檔案…", { loading: true });
 
@@ -277,9 +338,13 @@ function setDeleteDialogMessage(message = "") {
   deleteDialogMessage.hidden = !message;
 }
 
-function openDeleteDialog(file, button) {
-  pendingDeletion = { file, button };
-  deleteDialogFilename.textContent = file.name;
+function openDeleteDialog(files, buttons = []) {
+  pendingDeletion = { files, buttons };
+  const count = files.length;
+  deleteDialogTitle.textContent = count === 1 ? "刪除這個檔案？" : `刪除 ${count} 個檔案？`;
+  deleteDialogFilename.textContent = count === 1
+    ? files[0].name
+    : `已選取 ${count} 個檔案`;
   setDeleteDialogMessage();
   deleteCancelButton.disabled = false;
   deleteConfirmButton.disabled = false;
@@ -291,30 +356,45 @@ function openDeleteDialog(file, button) {
 async function confirmDeletion() {
   if (!pendingDeletion) return;
 
-  const { file, button } = pendingDeletion;
+  const { files, buttons } = pendingDeletion;
   deleteConfirmButton.disabled = true;
   deleteCancelButton.disabled = true;
-  deleteConfirmButton.textContent = "刪除中…";
   setDeleteDialogMessage();
-  button.disabled = true;
+  buttons.forEach((button) => { button.disabled = true; });
+
+  let completedCount = 0;
 
   try {
-    if (UPLOAD_API) {
-      await deleteWithWorker(file);
-    } else {
-      await deleteWithGitHubToken(file);
+    for (const file of files) {
+      deleteConfirmButton.textContent = files.length === 1
+        ? "刪除中…"
+        : `刪除中（${completedCount + 1}/${files.length}）…`;
+      if (UPLOAD_API) {
+        await deleteWithWorker(file);
+      } else {
+        await deleteWithGitHubToken(file);
+      }
+      completedCount += 1;
     }
 
     deleteDialog.close();
     pendingDeletion = null;
-    await loadFiles();
+    showStatus("刪除完成，正在重新整理頁面…", { loading: true });
+    window.setTimeout(() => window.location.reload(), 350);
   } catch (error) {
     console.error("刪除檔案失敗：", error);
+    if (completedCount > 0) {
+      deleteDialog.close();
+      pendingDeletion = null;
+      showStatus(`已刪除 ${completedCount} 個檔案，正在重新整理頁面…`, { loading: true });
+      window.setTimeout(() => window.location.reload(), 350);
+      return;
+    }
     setDeleteDialogMessage(error?.message || "刪除失敗，請稍後再試。");
     deleteConfirmButton.disabled = false;
     deleteCancelButton.disabled = false;
     deleteConfirmButton.textContent = "再試一次";
-    button.disabled = false;
+    buttons.forEach((button) => { button.disabled = false; });
   }
 }
 
@@ -330,16 +410,8 @@ function saveBlob(blob, filename) {
   window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
 }
 
-async function downloadFile(file, button) {
-  const originalText = button.textContent;
+async function downloadFileToDevice(file) {
   let freshUrl;
-
-  button.disabled = true;
-  button.replaceChildren();
-  const spinner = document.createElement("span");
-  spinner.className = "button-spinner";
-  spinner.setAttribute("aria-hidden", "true");
-  button.append(spinner, "下載中…");
 
   try {
     freshUrl = await getFreshDownloadUrl(file.path);
@@ -353,20 +425,74 @@ async function downloadFile(file, button) {
   } catch (error) {
     console.error("Blob 下載失敗，改用原始檔案網址：", error);
 
-    try {
-      freshUrl ||= await getFreshDownloadUrl(file.path);
-      window.open(freshUrl, "_blank", "noopener,noreferrer");
-    } catch (fallbackError) {
-      console.error("備用下載亦失敗：", fallbackError);
-      window.alert("目前無法下載此檔案，請稍後再試。");
-    }
+    freshUrl ||= await getFreshDownloadUrl(file.path);
+    window.open(freshUrl, "_blank", "noopener,noreferrer");
+  }
+}
+
+async function downloadFile(file, button) {
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.replaceChildren();
+  const spinner = document.createElement("span");
+  spinner.className = "button-spinner";
+  spinner.setAttribute("aria-hidden", "true");
+  button.append(spinner, "下載中…");
+
+  try {
+    await downloadFileToDevice(file);
+  } catch (error) {
+    console.error("下載失敗：", error);
+    window.alert("目前無法下載此檔案，請稍後再試。");
   } finally {
     button.disabled = false;
     button.textContent = originalText;
   }
 }
 
+async function downloadSelectedFiles() {
+  const files = getSelectedFiles();
+  if (files.length === 0) return;
+
+  const originalText = downloadSelectedButton.textContent;
+  downloadSelectedButton.disabled = true;
+  const failures = [];
+
+  try {
+    for (const [index, file] of files.entries()) {
+      downloadSelectedButton.textContent = `下載中（${index + 1}/${files.length}）`;
+      try {
+        await downloadFileToDevice(file);
+      } catch (error) {
+        console.error(`下載 ${file.name} 失敗：`, error);
+        failures.push(file.name);
+      }
+    }
+  } finally {
+    downloadSelectedButton.disabled = false;
+    downloadSelectedButton.textContent = originalText;
+  }
+
+  if (failures.length > 0) {
+    window.alert(`有 ${failures.length} 個檔案無法下載，請稍後再試。`);
+  }
+}
+
 refreshButton.addEventListener("click", loadFiles);
+selectAllCheckbox.addEventListener("change", () => {
+  if (selectAllCheckbox.checked) {
+    currentFiles.forEach((file) => selectedPaths.add(file.path));
+  } else {
+    selectedPaths.clear();
+  }
+  renderFiles(currentFiles);
+});
+downloadSelectedButton.addEventListener("click", downloadSelectedFiles);
+deleteSelectedButton.addEventListener("click", () => {
+  const files = getSelectedFiles();
+  const buttons = Array.from(document.querySelectorAll(".delete-icon-button"));
+  if (files.length > 0) openDeleteDialog(files, buttons);
+});
 deleteCancelButton.addEventListener("click", () => deleteDialog.close());
 deleteDialog.addEventListener("cancel", () => {
   pendingDeletion = null;

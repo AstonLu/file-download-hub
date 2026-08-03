@@ -71,9 +71,18 @@ h2 { margin-bottom: 5px; font-size: 1.05rem; font-weight: 650; letter-spacing: -
 .library, .upload-panel { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow); }
 .library-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px 29px 21px; border-bottom: 1px solid var(--line); }
 .file-count { min-height: 1.25em; margin: 0; color: var(--ink-soft); font-size: 0.82rem; }
+.library-controls { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+.select-all-control, .file-select-control { display: inline-flex; align-items: center; justify-content: center; color: var(--ink-soft); cursor: pointer; }
+.select-all-control { gap: 6px; font-size: 0.8rem; font-weight: 650; white-space: nowrap; }
+.select-all-control input, .file-select-control input { width: 16px; height: 16px; margin: 0; accent-color: var(--blue); cursor: pointer; }
 
 .text-button { padding: 8px 0; border: 0; background: transparent; color: var(--blue); font-size: 0.84rem; font-weight: 650; cursor: pointer; }
 .text-button:hover { color: var(--blue-pressed); text-decoration: underline; text-underline-offset: 3px; }
+.selection-button { min-height: 34px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-raised); color: var(--blue); font-size: 0.76rem; font-weight: 700; cursor: pointer; transition: border-color 160ms ease, background 160ms ease, color 160ms ease, opacity 160ms ease; }
+.selection-button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--blue) 45%, var(--line)); background: var(--blue-wash); }
+.selection-delete-button { color: var(--danger); }
+.selection-delete-button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--danger) 45%, var(--line)); background: var(--danger-wash); }
+.selection-button:disabled { cursor: wait; opacity: 0.65; }
 .library-state { display: flex; min-height: 220px; align-items: center; justify-content: center; gap: 10px; padding: 32px; color: var(--ink-soft); text-align: center; }
 .library-state.error { color: var(--danger); }
 .quiet-spinner, .spinner { display: inline-block; width: 15px; height: 15px; flex: 0 0 auto; border: 1.8px solid color-mix(in srgb, var(--ink-soft) 24%, transparent); border-top-color: currentColor; border-radius: 50%; animation: spin 800ms linear infinite; }
@@ -90,6 +99,8 @@ h2 { margin-bottom: 5px; font-size: 1.05rem; font-weight: 650; letter-spacing: -
 
 .download-button, .primary-button, .secondary-button { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; gap: 7px; border-radius: 11px; font-weight: 650; cursor: pointer; transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease, opacity 160ms ease; }
 .file-actions { display: flex; align-items: center; gap: 6px; }
+.file-select-control { width: 32px; height: 34px; border-radius: 9px; opacity: 0.62; transition: background 160ms ease, opacity 160ms ease; }
+.file-select-control:hover, .file-select-control:focus-within { background: var(--blue-wash); opacity: 1; }
 .download-button { min-width: 92px; padding: 9px 13px; border: 1px solid var(--line); background: var(--surface-raised); color: var(--ink); font-size: 0.87rem; }
 .download-button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--blue) 50%, var(--line)); color: var(--blue); background: var(--blue-wash); }
 .delete-icon-button { display: inline-grid; width: 34px; height: 34px; place-items: center; padding: 0; border: 0; border-radius: 9px; background: transparent; color: var(--ink-soft); cursor: pointer; opacity: 0.44; transition: color 160ms ease, background 160ms ease, opacity 160ms ease, transform 160ms ease; }
@@ -180,7 +191,8 @@ button:focus-visible, input:focus-visible, .drop-zone:focus-visible, a:focus-vis
   .archive-header { display: block; margin-bottom: 27px; }
   .archive-summary { max-width: none; margin: 16px 0 0; text-align: left; }
   .library, .upload-panel { border-radius: 20px; }
-  .library-heading { padding: 20px 19px 18px; }
+  .library-heading { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 20px 19px 18px; }
+  .library-controls { justify-content: flex-start; flex-wrap: wrap; gap: 9px 12px; }
   .file-item { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 18px 19px; }
   .file-name { overflow: visible; white-space: normal; overflow-wrap: anywhere; }
   .file-actions { width: 100%; }

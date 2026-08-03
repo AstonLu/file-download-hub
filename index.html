@@ -42,7 +42,15 @@
             <h2 id="file-list-title">所有檔案</h2>
             <p id="file-count" class="file-count" aria-live="polite"></p>
           </div>
-          <button id="refresh-button" class="text-button" type="button" hidden>重新整理</button>
+          <div class="library-controls">
+            <label id="select-all-control" class="select-all-control" hidden>
+              <input id="select-all-checkbox" type="checkbox">
+              <span>全選</span>
+            </label>
+            <button id="download-selected-button" class="selection-button" type="button" hidden>下載已選</button>
+            <button id="delete-selected-button" class="selection-button selection-delete-button" type="button" hidden>刪除已選</button>
+            <button id="refresh-button" class="text-button" type="button" hidden>重新整理</button>
+          </div>
         </div>
 
         <div id="status" class="library-state" role="status" aria-live="polite">
