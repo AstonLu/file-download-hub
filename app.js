@@ -11,6 +11,7 @@ const statusElement = document.querySelector("#status");
 const fileListElement = document.querySelector("#file-list");
 const fileCountElement = document.querySelector("#file-count");
 const refreshButton = document.querySelector("#refresh-button");
+const selectionToolbar = document.querySelector("#selection-toolbar");
 const selectAllControl = document.querySelector("#select-all-control");
 const selectAllCheckbox = document.querySelector("#select-all-checkbox");
 const downloadSelectedButton = document.querySelector("#download-selected-button");
@@ -87,7 +88,8 @@ function updateSelectionControls() {
   const selectedCount = getSelectedFiles().length;
   const allSelected = currentFiles.length > 0 && selectedCount === currentFiles.length;
 
-  selectAllControl.hidden = currentFiles.length === 0;
+  selectionToolbar.hidden = currentFiles.length === 0;
+  selectAllControl.hidden = false;
   selectAllCheckbox.checked = allSelected;
   selectAllCheckbox.indeterminate = selectedCount > 0 && !allSelected;
   selectAllCheckbox.setAttribute(
@@ -130,6 +132,7 @@ function showStatus(message, { loading = false, error = false } = {}) {
 function makeFileItem(file) {
   const item = document.createElement("li");
   item.className = "file-item";
+  item.classList.toggle("is-selected", selectedPaths.has(file.path));
 
   const details = document.createElement("div");
   details.className = "file-details";
@@ -162,6 +165,7 @@ function makeFileItem(file) {
   selectCheckbox.setAttribute("aria-label", `選取 ${file.name}`);
   selectCheckbox.addEventListener("change", () => {
     setFileSelected(file, selectCheckbox.checked);
+    item.classList.toggle("is-selected", selectCheckbox.checked);
   });
   selectLabel.append(selectCheckbox);
   actions.append(selectLabel);
@@ -187,7 +191,7 @@ function makeFileItem(file) {
 
   meta.append(extension, size);
   details.append(name, meta);
-  item.append(details, actions);
+  item.append(selectLabel, details, actions);
   return item;
 }
 

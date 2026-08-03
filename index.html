@@ -12,7 +12,7 @@
     <link rel="manifest" href="manifest.webmanifest?v=1">
     <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=1">
     <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=1">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=3">
     <title>檔案庫</title>
   </head>
   <body class="archive-page">
@@ -42,14 +42,17 @@
             <h2 id="file-list-title">所有檔案</h2>
             <p id="file-count" class="file-count" aria-live="polite"></p>
           </div>
+          <button id="refresh-button" class="text-button" type="button" hidden>重新整理</button>
+        </div>
+        <div id="selection-toolbar" class="selection-toolbar" hidden>
+          <p>選取檔案後可批次下載或刪除</p>
           <div class="library-controls">
-            <label id="select-all-control" class="select-all-control" hidden>
+            <label id="select-all-control" class="select-all-control">
               <input id="select-all-checkbox" type="checkbox">
               <span>全選</span>
             </label>
             <button id="download-selected-button" class="selection-button" type="button" hidden>下載已選</button>
             <button id="delete-selected-button" class="selection-button selection-delete-button" type="button" hidden>刪除已選</button>
-            <button id="refresh-button" class="text-button" type="button" hidden>重新整理</button>
           </div>
         </div>
 
@@ -78,7 +81,7 @@
     <footer class="archive-footer">
       <span>公開存取</span><span aria-hidden="true">·</span><span>由 GitHub 保存</span>
     </footer>
-    <script src="config.js" defer></script>
-    <script src="app.js" defer></script>
+    <script src="config.js?v=3" defer></script>
+    <script src="app.js?v=3" defer></script>
   </body>
 </html>

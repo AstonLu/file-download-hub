@@ -71,6 +71,8 @@ h2 { margin-bottom: 5px; font-size: 1.05rem; font-weight: 650; letter-spacing: -
 .library, .upload-panel { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow); }
 .library-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px 29px 21px; border-bottom: 1px solid var(--line); }
 .file-count { min-height: 1.25em; margin: 0; color: var(--ink-soft); font-size: 0.82rem; }
+.selection-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 12px 29px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--blue-wash) 32%, var(--surface)); }
+.selection-toolbar > p { margin: 0; color: var(--ink-soft); font-size: 0.78rem; }
 .library-controls { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
 .select-all-control, .file-select-control { display: inline-flex; align-items: center; justify-content: center; color: var(--ink-soft); cursor: pointer; }
 .select-all-control { gap: 6px; font-size: 0.8rem; font-weight: 650; white-space: nowrap; }
@@ -89,9 +91,10 @@ h2 { margin-bottom: 5px; font-size: 1.05rem; font-weight: 650; letter-spacing: -
 @keyframes spin { to { transform: rotate(1turn); } }
 
 .file-list { margin: 0; padding: 0; list-style: none; }
-.file-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 24px; padding: 20px 29px; transition: background 160ms ease; }
+.file-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 20px 29px; transition: background 160ms ease; }
 .file-item + .file-item { border-top: 1px solid var(--line); }
 .file-item:hover { background: color-mix(in srgb, var(--surface-raised) 75%, var(--blue-wash)); }
+.file-item.is-selected { background: color-mix(in srgb, var(--blue-wash) 62%, var(--surface)); }
 .file-details { min-width: 0; }
 .file-name { overflow: hidden; margin: 0 0 7px; font-size: 1rem; font-weight: 625; letter-spacing: -0.018em; text-overflow: ellipsis; white-space: nowrap; }
 .file-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; color: var(--ink-soft); font-size: 0.79rem; }
@@ -191,11 +194,13 @@ button:focus-visible, input:focus-visible, .drop-zone:focus-visible, a:focus-vis
   .archive-header { display: block; margin-bottom: 27px; }
   .archive-summary { max-width: none; margin: 16px 0 0; text-align: left; }
   .library, .upload-panel { border-radius: 20px; }
-  .library-heading { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 20px 19px 18px; }
+  .library-heading { padding: 20px 19px 18px; }
+  .selection-toolbar { display: grid; gap: 10px; padding: 13px 19px; }
   .library-controls { justify-content: flex-start; flex-wrap: wrap; gap: 9px 12px; }
-  .file-item { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 18px 19px; }
+  .file-item { grid-template-columns: auto minmax(0, 1fr); gap: 12px; padding: 18px 19px; }
   .file-name { overflow: visible; white-space: normal; overflow-wrap: anywhere; }
-  .file-actions { width: 100%; }
+  .file-select-control { align-self: start; margin-top: 1px; }
+  .file-actions { width: 100%; grid-column: 1 / -1; }
   .download-button { width: auto; flex: 1; }
   .upload-topbar { margin-bottom: 34px; }
   .connection-bar { grid-template-columns: minmax(0, 1fr) auto; padding: 16px 17px; }
