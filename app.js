@@ -11,6 +11,7 @@ const statusElement = document.querySelector("#status");
 const fileListElement = document.querySelector("#file-list");
 const fileCountElement = document.querySelector("#file-count");
 const refreshButton = document.querySelector("#refresh-button");
+const selectionModeButton = document.querySelector("#selection-mode-button");
 const selectionToolbar = document.querySelector("#selection-toolbar");
 const selectAllControl = document.querySelector("#select-all-control");
 const selectAllCheckbox = document.querySelector("#select-all-checkbox");
@@ -29,6 +30,7 @@ const UPLOAD_API = String(window.FILE_HUB_CONFIG?.uploadApi || "").replace(/\/$/
 let pendingDeletion = null;
 let currentFiles = [];
 const selectedPaths = new Set();
+let selectionMode = false;
 
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes < 0) return "大小不明";
@@ -88,7 +90,10 @@ function updateSelectionControls() {
   const selectedCount = getSelectedFiles().length;
   const allSelected = currentFiles.length > 0 && selectedCount === currentFiles.length;
 
-  selectionToolbar.hidden = currentFiles.length === 0;
+  selectionModeButton.hidden = currentFiles.length === 0;
+  selectionModeButton.textContent = selectionMode ? "完成" : "選取";
+  selectionModeButton.setAttribute("aria-pressed", String(selectionMode));
+  selectionToolbar.hidden = !selectionMode || currentFiles.length === 0;
   selectAllControl.hidden = false;
   selectAllCheckbox.checked = allSelected;
   selectAllCheckbox.indeterminate = selectedCount > 0 && !allSelected;
@@ -132,6 +137,7 @@ function showStatus(message, { loading = false, error = false } = {}) {
 function makeFileItem(file) {
   const item = document.createElement("li");
   item.className = "file-item";
+  item.classList.toggle("selection-active", selectionMode);
   item.classList.toggle("is-selected", selectedPaths.has(file.path));
 
   const details = document.createElement("div");
@@ -155,20 +161,22 @@ function makeFileItem(file) {
   const actions = document.createElement("div");
   actions.className = "file-actions";
 
-  const selectLabel = document.createElement("label");
-  selectLabel.className = "file-select-control";
-  selectLabel.title = `選取 ${file.name}`;
+  let selectLabel;
+  if (selectionMode) {
+    selectLabel = document.createElement("label");
+    selectLabel.className = "file-select-control";
+    selectLabel.title = `選取 ${file.name}`;
 
-  const selectCheckbox = document.createElement("input");
-  selectCheckbox.type = "checkbox";
-  selectCheckbox.checked = selectedPaths.has(file.path);
-  selectCheckbox.setAttribute("aria-label", `選取 ${file.name}`);
-  selectCheckbox.addEventListener("change", () => {
-    setFileSelected(file, selectCheckbox.checked);
-    item.classList.toggle("is-selected", selectCheckbox.checked);
-  });
-  selectLabel.append(selectCheckbox);
-  actions.append(selectLabel);
+    const selectCheckbox = document.createElement("input");
+    selectCheckbox.type = "checkbox";
+    selectCheckbox.checked = selectedPaths.has(file.path);
+    selectCheckbox.setAttribute("aria-label", `選取 ${file.name}`);
+    selectCheckbox.addEventListener("change", () => {
+      setFileSelected(file, selectCheckbox.checked);
+      item.classList.toggle("is-selected", selectCheckbox.checked);
+    });
+    selectLabel.append(selectCheckbox);
+  }
 
   const downloadButton = document.createElement("button");
   downloadButton.className = "download-button";
@@ -191,7 +199,11 @@ function makeFileItem(file) {
 
   meta.append(extension, size);
   details.append(name, meta);
-  item.append(selectLabel, details, actions);
+  if (selectLabel) {
+    item.append(selectLabel, details, actions);
+  } else {
+    item.append(details, actions);
+  }
   return item;
 }
 
@@ -483,6 +495,11 @@ async function downloadSelectedFiles() {
 }
 
 refreshButton.addEventListener("click", loadFiles);
+selectionModeButton.addEventListener("click", () => {
+  selectionMode = !selectionMode;
+  if (!selectionMode) selectedPaths.clear();
+  renderFiles(currentFiles);
+});
 selectAllCheckbox.addEventListener("change", () => {
   if (selectAllCheckbox.checked) {
     currentFiles.forEach((file) => selectedPaths.add(file.path));
