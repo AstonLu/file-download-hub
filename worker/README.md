@@ -1,6 +1,6 @@
 # Cloudflare Worker 安全上傳服務
 
-這個 Worker 讓 GitHub Pages 從手機或私人電腦上傳檔案，但不把 GitHub Token 放進瀏覽器。
+這個 Worker 讓 GitHub Pages 從手機或私人電腦上傳、刪除檔案，但不把 GitHub Token 放進瀏覽器。
 
 ## 一次性部署
 
@@ -18,3 +18,4 @@
 - Cloudflare Access 必須在公開使用前啟用
 - Worker 會再次比對 `Cf-Access-Authenticated-User-Email` 與 `ALLOWED_EMAIL`
 - 單檔上限為 25 MB
+- 刪除操作只會作用於設定的 `/files` 目錄，並在執行前重新讀取 GitHub 的最新 SHA

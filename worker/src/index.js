@@ -19,6 +19,10 @@ export default {
       return json({ ok: true, authenticatedEmail: authenticatedEmail(request) || null }, 200, cors);
     }
 
+    if (url.pathname === "/delete" && request.method === "POST") {
+      return deleteFile(request, env, cors);
+    }
+
     if (url.pathname !== "/upload" || request.method !== "POST") {
       return json({ error: "Not found" }, 404, cors);
     }
@@ -102,6 +106,61 @@ export default {
 
 function authenticatedEmail(request) {
   return request.headers.get("Cf-Access-Authenticated-User-Email") || "";
+}
+
+async function deleteFile(request, env, cors) {
+  const email = authenticatedEmail(request);
+  if (!email || (env.ALLOWED_EMAIL && email.toLowerCase() !== env.ALLOWED_EMAIL.toLowerCase())) {
+    return json({ error: "Unauthorized" }, 401, cors);
+  }
+
+  if (!env.GITHUB_TOKEN) {
+    return json({ error: "Worker is missing GITHUB_TOKEN" }, 500, cors);
+  }
+
+  try {
+    const body = await request.json();
+    const filename = normalizeFilename(String(body?.filename || ""));
+    if (!filename) {
+      return json({ error: "Invalid filename" }, 400, cors);
+    }
+
+    const owner = env.GITHUB_OWNER || DEFAULT_OWNER;
+    const repository = env.GITHUB_REPOSITORY || DEFAULT_REPOSITORY;
+    const branch = env.GITHUB_BRANCH || DEFAULT_BRANCH;
+    const directory = env.GITHUB_DIRECTORY || DEFAULT_DIRECTORY;
+    const path = `${directory}/${filename}`;
+    const endpoint = `https://api.github.com/repos/${owner}/${repository}/contents/${encodePath(path)}`;
+    const headers = githubHeaders(env.GITHUB_TOKEN);
+    const metadataResponse = await fetch(`${endpoint}?ref=${encodeURIComponent(branch)}`, { headers });
+
+    if (metadataResponse.status === 404) {
+      return json({ error: "File not found" }, 404, cors);
+    }
+    if (!metadataResponse.ok) {
+      throw await githubError(metadataResponse, "Unable to inspect file");
+    }
+
+    const metadata = await metadataResponse.json();
+    if (metadata.type !== "file" || !metadata.sha) {
+      return json({ error: "File not found" }, 404, cors);
+    }
+
+    const deleteResponse = await fetch(endpoint, {
+      method: "DELETE",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify({ message: `Delete ${filename}`, sha: metadata.sha, branch }),
+    });
+    if (!deleteResponse.ok) {
+      throw await githubError(deleteResponse, "GitHub delete failed");
+    }
+
+    const result = await deleteResponse.json();
+    return json({ ok: true, filename, commitUrl: result.commit?.html_url || null, deletedBy: email }, 200, cors);
+  } catch (error) {
+    console.error(error);
+    return json({ error: error?.message || "Delete failed" }, error?.status || 500, cors);
+  }
 }
 
 function normalizeFilename(filename) {

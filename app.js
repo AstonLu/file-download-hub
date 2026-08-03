@@ -11,6 +11,16 @@ const statusElement = document.querySelector("#status");
 const fileListElement = document.querySelector("#file-list");
 const fileCountElement = document.querySelector("#file-count");
 const refreshButton = document.querySelector("#refresh-button");
+const deleteDialog = document.querySelector("#delete-dialog");
+const deleteDialogFilename = document.querySelector("#delete-dialog-filename");
+const deleteDialogMessage = document.querySelector("#delete-dialog-message");
+const deleteCancelButton = document.querySelector("#delete-cancel-button");
+const deleteConfirmButton = document.querySelector("#delete-confirm-button");
+const TOKEN_STORAGE_KEY = "file-download-hub.github-token";
+const API_VERSION = "2022-11-28";
+const UPLOAD_API = String(window.FILE_HUB_CONFIG?.uploadApi || "").replace(/\/$/, "");
+
+let pendingDeletion = null;
 
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes < 0) return "大小不明";
@@ -44,6 +54,22 @@ function isVisibleFile(entry) {
 
 function encodePath(path) {
   return path.split("/").map(encodeURIComponent).join("/");
+}
+
+function getStoredToken() {
+  return localStorage.getItem(TOKEN_STORAGE_KEY) || "";
+}
+
+function canDeleteFiles() {
+  return Boolean(UPLOAD_API || getStoredToken());
+}
+
+function githubHeaders(token) {
+  return {
+    Accept: "application/vnd.github+json",
+    Authorization: `Bearer ${token}`,
+    "X-GitHub-Api-Version": API_VERSION,
+  };
 }
 
 function showStatus(message, { loading = false, error = false } = {}) {
@@ -85,16 +111,31 @@ function makeFileItem(file) {
   const size = document.createElement("span");
   size.textContent = formatBytes(file.size);
 
-  const button = document.createElement("button");
-  button.className = "download-button";
-  button.type = "button";
-  button.textContent = "下載";
-  button.setAttribute("aria-label", `下載 ${file.name}`);
-  button.addEventListener("click", () => downloadFile(file, button));
+  const actions = document.createElement("div");
+  actions.className = "file-actions";
+
+  const downloadButton = document.createElement("button");
+  downloadButton.className = "download-button";
+  downloadButton.type = "button";
+  downloadButton.textContent = "下載";
+  downloadButton.setAttribute("aria-label", `下載 ${file.name}`);
+  downloadButton.addEventListener("click", () => downloadFile(file, downloadButton));
+  actions.append(downloadButton);
+
+  if (canDeleteFiles()) {
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "delete-icon-button";
+    deleteButton.type = "button";
+    deleteButton.setAttribute("aria-label", `刪除 ${file.name}`);
+    deleteButton.title = "刪除檔案";
+    deleteButton.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4.8c0-.44.36-.8.8-.8h4.4c.44 0 .8.36.8.8V7m-8.7 0 .72 12.05c.03.54.48.95 1.02.95h8.12c.54 0 .99-.41 1.02-.95L17.9 7M10 10.5v5.75m4-5.75v5.75" stroke="currentColor" stroke-width="1.65" stroke-linecap="round"/></svg>';
+    deleteButton.addEventListener("click", () => openDeleteDialog(file, deleteButton));
+    actions.append(deleteButton);
+  }
 
   meta.append(extension, size);
   details.append(name, meta);
-  item.append(details, button);
+  item.append(details, actions);
   return item;
 }
 
@@ -169,6 +210,114 @@ async function getFreshDownloadUrl(filePath) {
   return metadata.download_url;
 }
 
+async function getLatestFileSha(filePath, token) {
+  const endpoint = `${API_ROOT}/${encodePath(filePath)}?ref=${BRANCH}`;
+  const response = await fetch(endpoint, {
+    cache: "no-store",
+    headers: githubHeaders(token),
+  });
+  const metadata = await response.json().catch(() => ({}));
+
+  if (!response.ok || metadata.type !== "file" || !metadata.sha) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error("刪除權限無效或已到期，請重新設定憑證。");
+    }
+    throw new Error(metadata.message || "找不到要刪除的檔案。");
+  }
+
+  return metadata.sha;
+}
+
+async function deleteWithGitHubToken(file) {
+  const token = getStoredToken();
+  if (!token) throw new Error("這台裝置沒有刪除權限。");
+
+  const sha = await getLatestFileSha(file.path, token);
+  const response = await fetch(`${API_ROOT}/${encodePath(file.path)}`, {
+    method: "DELETE",
+    headers: {
+      ...githubHeaders(token),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message: `Delete ${file.name}`,
+      sha,
+      branch: BRANCH,
+    }),
+  });
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error("刪除權限無效或已到期，請重新設定憑證。");
+    }
+    throw new Error(result.message || `GitHub 刪除失敗（${response.status}）`);
+  }
+}
+
+async function deleteWithWorker(file) {
+  const response = await fetch(`${UPLOAD_API}/delete`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filename: file.name }),
+  });
+  const result = await response.json().catch(() => ({}));
+
+  if (response.status === 401 || response.status === 403) {
+    throw new Error("請先完成私人上傳服務登入。");
+  }
+  if (!response.ok) {
+    throw new Error(result.error || `刪除服務回應 ${response.status}`);
+  }
+}
+
+function setDeleteDialogMessage(message = "") {
+  deleteDialogMessage.textContent = message;
+  deleteDialogMessage.hidden = !message;
+}
+
+function openDeleteDialog(file, button) {
+  pendingDeletion = { file, button };
+  deleteDialogFilename.textContent = file.name;
+  setDeleteDialogMessage();
+  deleteCancelButton.disabled = false;
+  deleteConfirmButton.disabled = false;
+  deleteConfirmButton.textContent = "刪除檔案";
+  deleteDialog.showModal();
+  deleteConfirmButton.focus();
+}
+
+async function confirmDeletion() {
+  if (!pendingDeletion) return;
+
+  const { file, button } = pendingDeletion;
+  deleteConfirmButton.disabled = true;
+  deleteCancelButton.disabled = true;
+  deleteConfirmButton.textContent = "刪除中…";
+  setDeleteDialogMessage();
+  button.disabled = true;
+
+  try {
+    if (UPLOAD_API) {
+      await deleteWithWorker(file);
+    } else {
+      await deleteWithGitHubToken(file);
+    }
+
+    deleteDialog.close();
+    pendingDeletion = null;
+    await loadFiles();
+  } catch (error) {
+    console.error("刪除檔案失敗：", error);
+    setDeleteDialogMessage(error?.message || "刪除失敗，請稍後再試。");
+    deleteConfirmButton.disabled = false;
+    deleteCancelButton.disabled = false;
+    deleteConfirmButton.textContent = "再試一次";
+    button.disabled = false;
+  }
+}
+
 function saveBlob(blob, filename) {
   const objectUrl = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
@@ -218,4 +367,12 @@ async function downloadFile(file, button) {
 }
 
 refreshButton.addEventListener("click", loadFiles);
+deleteCancelButton.addEventListener("click", () => deleteDialog.close());
+deleteDialog.addEventListener("cancel", () => {
+  pendingDeletion = null;
+});
+deleteDialog.addEventListener("close", () => {
+  pendingDeletion = null;
+});
+deleteConfirmButton.addEventListener("click", confirmDeletion);
 loadFiles();

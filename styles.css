@@ -89,8 +89,14 @@ h2 { margin-bottom: 5px; font-size: 1.05rem; font-weight: 650; letter-spacing: -
 .extension { padding: 2px 7px; border: 1px solid color-mix(in srgb, var(--line-strong) 75%, transparent); border-radius: 6px; color: var(--ink-soft); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.055em; }
 
 .download-button, .primary-button, .secondary-button { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; gap: 7px; border-radius: 11px; font-weight: 650; cursor: pointer; transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease, opacity 160ms ease; }
+.file-actions { display: flex; align-items: center; gap: 6px; }
 .download-button { min-width: 92px; padding: 9px 13px; border: 1px solid var(--line); background: var(--surface-raised); color: var(--ink); font-size: 0.87rem; }
 .download-button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--blue) 50%, var(--line)); color: var(--blue); background: var(--blue-wash); }
+.delete-icon-button { display: inline-grid; width: 34px; height: 34px; place-items: center; padding: 0; border: 0; border-radius: 9px; background: transparent; color: var(--ink-soft); cursor: pointer; opacity: 0.44; transition: color 160ms ease, background 160ms ease, opacity 160ms ease, transform 160ms ease; }
+.delete-icon-button svg { width: 18px; height: 18px; }
+.delete-icon-button:hover:not(:disabled), .delete-icon-button:focus-visible { background: var(--danger-wash); color: var(--danger); opacity: 1; }
+.delete-icon-button:active:not(:disabled) { transform: scale(0.92); }
+.delete-icon-button:disabled { cursor: wait; opacity: 0.35; }
 .primary-button { width: 100%; border: 1px solid var(--blue); background: var(--blue); color: #fff; }
 .primary-button:hover:not(:disabled) { border-color: var(--blue-pressed); background: var(--blue-pressed); }
 .secondary-button { padding: 0 13px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-size: 0.84rem; }
@@ -99,6 +105,21 @@ h2 { margin-bottom: 5px; font-size: 1.05rem; font-weight: 650; letter-spacing: -
 .download-button:disabled, .primary-button:disabled { cursor: wait; opacity: 0.65; }
 .button-spinner { width: 14px; height: 14px; border: 2px solid rgba(255, 255, 255, 0.45); border-top-color: #fff; border-radius: 50%; animation: spin 800ms linear infinite; }
 .archive-footer { display: flex; justify-content: center; gap: 8px; padding: 4px 24px calc(28px + var(--safe-bottom)); color: var(--ink-soft); font-size: 0.74rem; }
+
+.delete-dialog { width: min(calc(100% - 40px), 390px); padding: 0; border: 1px solid var(--line); border-radius: 19px; background: var(--surface); color: var(--ink); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2); }
+.delete-dialog::backdrop { background: rgba(19, 22, 21, 0.36); backdrop-filter: blur(3px); }
+.delete-dialog-content { padding: 25px; }
+.dialog-kicker { margin: 0 0 8px; color: var(--ink-soft); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; }
+.delete-dialog h2 { margin-bottom: 10px; font-size: 1.2rem; }
+.delete-dialog-filename { margin: 0 0 8px; overflow-wrap: anywhere; color: var(--ink); font-weight: 650; }
+.delete-dialog-description { margin: 0; color: var(--ink-soft); font-size: 0.86rem; }
+.delete-dialog-message { margin: 14px 0 0; color: var(--danger); font-size: 0.83rem; }
+.delete-dialog-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 25px; }
+.delete-dialog-actions .secondary-button { min-height: 40px; }
+.delete-confirm-button { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; padding: 0 13px; border: 1px solid var(--danger); border-radius: 11px; background: var(--danger); color: #fff; font-weight: 650; cursor: pointer; transition: background 160ms ease, border-color 160ms ease, transform 160ms ease, opacity 160ms ease; }
+.delete-confirm-button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--danger) 88%, #000); background: color-mix(in srgb, var(--danger) 88%, #000); }
+.delete-confirm-button:active:not(:disabled) { transform: scale(0.97); }
+.delete-confirm-button:disabled { cursor: wait; opacity: 0.68; }
 
 /* Private uploader */
 .upload-frame { width: min(calc(100% - 40px), 620px); padding-bottom: calc(48px + var(--safe-bottom)); }
@@ -162,7 +183,8 @@ button:focus-visible, input:focus-visible, .drop-zone:focus-visible, a:focus-vis
   .library-heading { padding: 20px 19px 18px; }
   .file-item { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 18px 19px; }
   .file-name { overflow: visible; white-space: normal; overflow-wrap: anywhere; }
-  .download-button { width: 100%; }
+  .file-actions { width: 100%; }
+  .download-button { width: auto; flex: 1; }
   .upload-topbar { margin-bottom: 34px; }
   .connection-bar { grid-template-columns: minmax(0, 1fr) auto; padding: 16px 17px; }
   #upload-mode { display: none; }

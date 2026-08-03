@@ -11,8 +11,9 @@
 - 首次在裝置上使用時輸入 fine-grained GitHub Token
 - Token 只保存在該裝置的瀏覽器 `localStorage`，之後不再顯示輸入欄位
 - 清除瀏覽器網站資料或 Token 到期後，需要重新設定
+- 已設定上傳權限的裝置，首頁每個檔案下載按鈕旁會顯示低對比的垃圾桶圖示；確認後才會刪除 `/files` 中的該檔案
 
-隱藏入口與 `noindex` 只能降低被偶然發現的機率，不構成真正的存取控制。正式安全模式可透過 `config.js` 接入 Cloudflare Access 與 `worker/` 上傳服務，將 GitHub Token 存放在 Worker Secret。
+隱藏入口與 `noindex` 只能降低被偶然發現的機率，不構成真正的存取控制。正式安全模式可透過 `config.js` 接入 Cloudflare Access 與 `worker/` 上傳、刪除服務，將 GitHub Token 存放在 Worker Secret。
 
 ## 儲存庫結構
 

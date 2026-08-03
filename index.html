@@ -53,9 +53,24 @@
       </section>
     </main>
 
+    <dialog id="delete-dialog" class="delete-dialog" aria-labelledby="delete-dialog-title">
+      <form method="dialog" class="delete-dialog-content">
+        <p class="dialog-kicker">檔案管理</p>
+        <h2 id="delete-dialog-title">刪除這個檔案？</h2>
+        <p id="delete-dialog-filename" class="delete-dialog-filename"></p>
+        <p class="delete-dialog-description">刪除後將無法復原。</p>
+        <p id="delete-dialog-message" class="delete-dialog-message" role="alert" hidden></p>
+        <div class="delete-dialog-actions">
+          <button id="delete-cancel-button" class="secondary-button" type="button">取消</button>
+          <button id="delete-confirm-button" class="delete-confirm-button" type="button">刪除檔案</button>
+        </div>
+      </form>
+    </dialog>
+
     <footer class="archive-footer">
       <span>公開存取</span><span aria-hidden="true">·</span><span>由 GitHub 保存</span>
     </footer>
+    <script src="config.js" defer></script>
     <script src="app.js" defer></script>
   </body>
 </html>
