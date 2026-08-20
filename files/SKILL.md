@@ -228,3 +228,204 @@ If the exact meeting date is unknown, ask only when a filename cannot be produce
 If the user has supplied a relative date such as "today" or "this morning", resolve it to the actual date
 
 Do not sacrifice content quality to force content into a fixed number of pages
+
+
+---
+
+# Gold Standard Style Specification
+
+This reference captures the stable style learned from the user's finalized KGI meeting notes
+
+## Header
+
+Use:
+- Topic：
+- Date：
+- Participant (不完整)：
+
+Participants are grouped by organization where possible
+If names are missing, preserve incompleteness rather than inventing them
+
+## Key Takeaways
+
+Target: 2–6 bullets depending on meeting complexity; normally 3–5
+
+The finalized RWA reference used four bullets, but four is an example rather than a fixed rule. Key Takeaways should expand or contract with meeting complexity and collectively cover:
+- regulatory / project timeline
+- operating-model design
+- role change for the bank / securities ecosystem
+- KGI participation stance and gating items
+
+Characteristics:
+- one full sentence per bullet
+- executive-level, not process-level
+- no numbered taxonomy
+- no sub-bullets in normal cases
+- the four bullets together should function as a self-contained executive readout
+
+## General Notes
+
+Each section begins with an answer-first headline
+
+Pattern:
+**<topic + what it means / how it works / what changes>**
+
+Examples of the pattern:
+- "主管機關預計於 2027 年 3 月底前完成國內公司債及金融債 RWA 擬真交易，並以正式平台提前驗證未來實際發行與交割流程"
+- "首階段採 Digital Native Bond 及 B2B 架構，整檔債券直接於鏈上發行，但一般投資人仍維持現有鏈下持有及交易模式"
+- "RWA Platform 採金融周邊單位共同建置的聯盟鏈，並與財金公司款項 Token 共鏈，以支援 Bond Token 與 Cash Token 的即時 DVP"
+- "債券發行程序大致沿用現行制度，主要新增 Token Mint、Wallet Mapping 及 Private Key Signature 等鏈上作業"
+- "次級市場初期仍沿用現有 OTC 議價交易模式，RWA Platform 的主要改變集中在交易完成後的鏈上 Settlement"
+- "證券商無法自行持有 Cash Token，使 Settlement Bank 成為 RWA DVP 必要角色，銀行亦可能進一步延伸至 Private Key Custody"
+- "目前尚待確認的議題主要集中在 Buyer、Cash Token Custody、DVP Exception Handling 及虛實轉換法制，將直接影響凱基後續系統與作業設計"
+
+These are not generic category titles
+They already communicate the section's answer
+
+## Bullet design
+
+Preferred:
+- headline
+  - complete first-level sentence
+    - supporting mechanism / fact
+    - supporting mechanism / fact
+
+Avoid:
+- role label as bullet
+- one- or two-word bullet
+- overly fragmented notes
+- pseudo-slide labels such as "Issue", "Implication", "Next step"
+- artificial numbering
+
+## Fidelity
+
+The finalized document did not create a separate recommendation section
+It captured "尚待確認" items when the meeting itself left issues unresolved
+This is essential: do not transform meeting minutes into consultant-authored advice unless explicitly requested
+
+## Formatting tone
+
+- clean consulting working document
+- KGI corporate presentation feel
+- bold section headlines
+- restrained formatting
+- no emoji
+- no decorative callouts
+- no chapter numbering
+- no Chinese full stops at bullet ends
+
+
+---
+
+# QA Checklist
+
+Run this silently before final output
+
+## Executive layer
+- Are there only 3–5 Key Takeaways
+- Can a GM understand the meeting's purpose, direction, organization implication, and main unresolved issue from Key Takeaways alone
+- Is every Key Takeaway materially different
+
+## Structure
+- Are General Notes unnumbered
+- Is every section headline answer-first and a complete sentence
+- Are sections ordered by logic instead of speaker chronology
+- Are related comments consolidated
+
+## Bullet quality
+- Is every first-level bullet a complete sentence
+- Does each first-level bullet contain one distinct message
+- Are supporting facts placed one level below
+- Is hierarchy limited to three levels
+
+## Fidelity
+- Are all names, dates, amounts, and decisions source-supported
+- Are proposed or unfinished items marked with uncertainty language
+- Is anything presented as final when the transcript said it was still being discussed
+- Were any unsupported recommendations or external facts added
+
+## Style
+- Traditional Chinese by default
+- Professional KGI/BCG working-note tone
+- English technical terms retained where clearer
+- No emoji
+- No numbered chapter structure
+- No Chinese full stop at bullet or headline endings
+
+## Final pass
+Delete any sentence that can be removed without reducing understanding
+Restore any decision-relevant fact that was accidentally compressed away
+
+
+---
+
+# Output Skeleton
+
+Topic：<meeting topic>
+Date：<YYYY/MM/DD>
+Participant (不完整)：
+• <organization / participants>
+• <organization / participants>
+
+Key Takeaways
+
+• <complete executive takeaway>
+• <complete executive takeaway>
+• <complete executive takeaway>
+• <complete executive takeaway>
+
+General Notes
+
+**<answer-first section headline>**
+
+• <complete first-level supporting sentence>
+  o <supporting fact / mechanism>
+  o <supporting fact / mechanism>
+
+• <complete first-level supporting sentence>
+  o <supporting fact / mechanism>
+
+**<answer-first section headline>**
+
+• <complete first-level supporting sentence>
+  o <supporting fact / mechanism>
+  o <supporting fact / mechanism>
+
+
+---
+
+# KGI Word Template Integration
+
+The Word visual theme is part of the required output quality, not an optional decoration
+
+## Preferred tool
+
+Use `填入 Microsoft Word 範本` when the designated KGI Meeting Minutes template is available
+
+The template should be stored in the company's OneDrive for Business or SharePoint document library and should preserve:
+- static KGI logo
+- page margins and typography
+- Topic / Date / Participant layout
+- Key Takeaways heading
+- General Notes heading
+- bold answer-first section headline style
+- bullet indentation and spacing
+
+## Dynamic content
+
+The number of Key Takeaways is not fixed
+Use 2–6 depending on meeting complexity
+
+General Notes section count is also dynamic
+Do not create artificial sections to fill a template
+
+Where the Word connector requires fields, use a template design that supports variable-length content, such as repeating sections or multiline plain-text controls
+
+## Tool fallback
+
+If the KGI template is unavailable:
+- produce the correctly structured content first
+- use `使用指定內容建立 Microsoft Word 文件`
+- tell the user that the output does not yet use the designated KGI visual template
+
+Never silently drop the KGI theme when a configured template exists
