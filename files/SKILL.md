@@ -29,7 +29,9 @@ Do not invent:
 - motivations
 - implications not stated or strongly supported by the meeting
 
-If a field is incomplete, write "不完整", "未知", or "待確認" rather than guessing
+If noncritical information is missing, omit it cleanly from the final meeting minutes rather than inserting placeholders
+Do not output "不完整", "未知", "待確認", "待補" or similar placeholders unless the meeting itself explicitly states that an issue is unresolved
+Only ask the user for clarification when the missing information would materially affect factual accuracy, the meeting conclusion, or the usability of the final document
 
 # Core workflow
 
@@ -52,14 +54,15 @@ Preserve disagreements, uncertainties, and unresolved alternatives when material
 
 ## Write the header
 
-Default structure:
+Default structure when the information is available:
 
 Topic：<concise professional meeting topic>
 Date：<meeting date; include AM/PM only if provided or clearly requested>
-Participant (不完整)：<participants grouped by organization when available>
+Participant：<participants grouped by organization when available>
 
-If participant information is incomplete, keep "Participant (不完整)"
-Never infer missing names
+If date or participant information is not available and is not essential, omit that line
+Never infer missing names or titles
+Do not label participant information as incomplete
 
 ## Write Key Takeaways for a GM-level reader
 
@@ -163,6 +166,20 @@ when the source is not final
 
 Do not convert a proposal into a confirmed decision
 
+Before finalizing, run an internal status check for every material statement:
+- confirmed fact / decision
+- current plan / proposal
+- unresolved item
+Use wording that matches the actual status and never upgrade a proposal into a decision
+
+Run a cross-section consistency check:
+- the same role, process, participant type, or rule must not be described inconsistently in different sections
+- if two statements appear to conflict, resolve the scope distinction from the source before writing
+- if the source itself is ambiguous, preserve the ambiguity rather than choosing one interpretation
+
+Do not place a confirmed fact inside an "unresolved" or "尚待確認" section
+Do not place an unresolved proposal inside a confirmed-fact section
+
 Do not "improve" the substance by adding consulting recommendations
 This skill creates meeting minutes, not a strategy memo
 
@@ -180,6 +197,15 @@ Avoid rhetorical commentary
 Avoid "重點", "洞察", "結論", "摘要" as section labels
 Do not use numbered chapter structures such as 1, 2, 3 or 4.2
 Do not use emoji
+
+Do not output meta-commentary before or after the meeting minutes, including statements such as:
+- "I'll use the meeting-minutes skill"
+- "內容已依格式完成"
+- "以下為整理結果"
+- implementation notes about tools, templates, or model behavior
+
+When the task is to produce meeting minutes, return only the finished meeting minutes or the generated file result
+Do not expose internal skill names, QA steps, or orchestration behavior to the user
 
 # Quality gate before finalizing
 
@@ -200,10 +226,40 @@ Before output, silently verify:
 13. No Chinese full stop is used at the end of bullets or headlines
 14. English terminology is consistent
 15. The final output resembles the reference style files in this skill package
+16. No noncritical placeholder text such as 不完整、未知、待確認、待補 appears in the final document
+17. No meta-commentary about using a skill, formatting, or tool behavior appears in the final output
+18. Every material statement preserves its source status as confirmed / planned / unresolved
+19. No contradiction exists across Key Takeaways and General Notes
+20. Confirmed facts are not incorrectly placed under unresolved-items sections, and unresolved items are not presented as confirmed facts
 
 If any check fails, revise before returning the output
 
 # Word output behavior
+
+For production use, prefer a single Copilot Studio Workflow / Agent Flow rather than exposing the raw Word connector directly to the agent
+
+Recommended workflow:
+1. Receive structured meeting-minute fields from the agent
+2. Populate the designated KGI Word template
+3. Save the populated binary as a new .docx file in the designated OneDrive for Business or SharePoint folder
+4. Return the created filename and file location to the agent
+
+The preferred KGI template design should preserve the logo and page theme as static template content and use supported Word content controls for dynamic fields
+
+Recommended dynamic controls:
+- Topic: Plain Text Content Control
+- Date: Plain Text Content Control
+- Participant: Plain Text Content Control with multiple paragraphs enabled
+- KeyTakeaways: Repeating Section Content Control containing one Plain Text control named KeyTakeaway
+- GeneralSections: Repeating Section Content Control containing:
+  - SectionHeadline: Plain Text control formatted bold
+  - SectionBody: Plain Text control with multiple paragraphs enabled
+
+For SectionBody, the agent may provide visually structured plain text using bullet symbols and line breaks
+Do not rely on Rich Text Content Control because the Word Online (Business) connector does not support it
+
+The preferred final output is a Word document that preserves the designated KGI meeting-note visual theme, including the KGI logo, typography, spacing, margins, and section styling
+
 
 The preferred final output is a Word document that preserves the designated KGI meeting-note visual theme, including the KGI logo, typography, spacing, margins, and section styling
 
@@ -241,10 +297,10 @@ This reference captures the stable style learned from the user's finalized KGI m
 Use:
 - Topic：
 - Date：
-- Participant (不完整)：
+- Participant：
 
 Participants are grouped by organization where possible
-If names are missing, preserve incompleteness rather than inventing them
+If some participant names are missing, list only the names or groups supported by the source and omit missing entries
 
 ## Key Takeaways
 
@@ -363,7 +419,7 @@ Restore any decision-relevant fact that was accidentally compressed away
 
 Topic：<meeting topic>
 Date：<YYYY/MM/DD>
-Participant (不完整)：
+Participant：
 • <organization / participants>
 • <organization / participants>
 
