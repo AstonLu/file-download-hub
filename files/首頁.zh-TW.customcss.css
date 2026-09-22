@@ -1,0 +1,97 @@
+.cowork-brief {
+  --kgi-blue:#0b5b98;
+  --kgi-blue-dark:#004b87;
+  --text:#222;
+  --muted:#666;
+  --line:#b8b8b8;
+  --soft:#f5f7fa;
+  width:min(920px, calc(100% - 40px));
+  margin:0 auto;
+  padding:34px 0 72px;
+  background:#fff;
+  color:var(--text);
+  font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",Arial,sans-serif;
+  font-size:16px;
+  line-height:1.85;
+  -webkit-font-smoothing:antialiased;
+}
+.cowork-brief, .cowork-brief * { box-sizing:border-box; }
+.cowork-brief h1 {
+  font-size:30px;
+  line-height:1.35;
+  text-align:center;
+  margin:0 0 30px;
+  font-weight:700;
+  letter-spacing:.02em;
+}
+.cowork-brief h2 {
+  font-size:23px;
+  line-height:1.45;
+  margin:42px 0 16px;
+  font-weight:700;
+}
+.cowork-brief h2.center { text-align:center; margin-top:46px; }
+.cowork-brief h3 {
+  font-size:20px;
+  line-height:1.5;
+  margin:34px 0 12px;
+  font-weight:700;
+}
+.cowork-brief .blue-head { color:#0070b5; }
+.cowork-brief p { margin:0 0 14px; }
+.cowork-brief ol { margin:8px 0 20px 1.8em; padding:0; }
+.cowork-brief li { margin:4px 0; padding-left:.4em; }
+.cowork-brief a { color:#1674a5; text-decoration:underline; text-underline-offset:3px; }
+.cowork-brief .table-wrap { width:100%; overflow-x:auto; margin:16px 0 24px; }
+.cowork-brief table {
+  width:100%;
+  border-collapse:collapse;
+  border-spacing:0;
+  min-width:680px;
+  font-size:15px;
+  line-height:1.55;
+}
+.cowork-brief th, .cowork-brief td {
+  border:1px solid #555;
+  padding:8px 10px;
+  vertical-align:middle;
+}
+.cowork-brief th {
+  background:#245f96;
+  color:#fff;
+  text-align:center;
+  font-weight:700;
+}
+.cowork-brief td.center { text-align:center; }
+.cowork-brief td.top { vertical-align:top; }
+.cowork-brief .criteria ul { margin:0; padding-left:1.25em; }
+.cowork-brief .criteria li { margin:2px 0; }
+.cowork-brief .notes {
+  font-size:14px;
+  line-height:1.75;
+  color:#444;
+  margin:10px 0 26px;
+}
+.cowork-brief .notes p { margin:5px 0; }
+.cowork-brief .qr { margin:22px 0 36px; }
+.cowork-brief .qr img { display:block; width:min(430px, 100%); height:auto; }
+.cowork-brief .footnote { color:#555; font-size:14px; margin-top:12px; }
+.cowork-brief .spacer { height:2px; }
+@media (max-width:720px) {
+  .cowork-brief { width:min(100% - 28px, 920px); padding-top:22px; font-size:16px; line-height:1.78; }
+  .cowork-brief h1 { font-size:25px; text-align:left; margin-bottom:24px; }
+  .cowork-brief h2 { font-size:21px; margin-top:34px; }
+  .cowork-brief h3 { font-size:19px; margin-top:28px; }
+  .cowork-brief table { font-size:14px; }
+}
+@media print {
+  .cowork-brief { width:auto; max-width:none; padding:0; background:#fff; }
+  .cowork-brief, .cowork-brief * {
+    break-before:auto !important;
+    break-after:auto !important;
+    break-inside:auto !important;
+    page-break-before:auto !important;
+    page-break-after:auto !important;
+    page-break-inside:auto !important;
+  }
+}
