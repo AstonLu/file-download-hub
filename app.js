@@ -4,8 +4,11 @@ const OWNER = "AstonLu";
 const REPOSITORY = "file-download-hub";
 const BRANCH = "main";
 const DIRECTORY = "files";
-const API_ROOT = `https://api.github.com/repos/${OWNER}/${REPOSITORY}/contents`;
+const REPOSITORY_API_ROOT = `https://api.github.com/repos/${OWNER}/${REPOSITORY}`;
+const API_ROOT = `${REPOSITORY_API_ROOT}/contents`;
 const FILES_ENDPOINT = `${API_ROOT}/${DIRECTORY}?ref=${BRANCH}`;
+const COMMITS_ENDPOINT = `${REPOSITORY_API_ROOT}/commits`;
+const API_VERSION = "2022-11-28";
 
 const statusElement = document.querySelector("#status");
 const fileListElement = document.querySelector("#file-list");
@@ -24,7 +27,6 @@ const deleteDialogMessage = document.querySelector("#delete-dialog-message");
 const deleteCancelButton = document.querySelector("#delete-cancel-button");
 const deleteConfirmButton = document.querySelector("#delete-confirm-button");
 const TOKEN_STORAGE_KEY = "file-download-hub.github-token";
-const API_VERSION = "2022-11-28";
 const UPLOAD_API = String(window.FILE_HUB_CONFIG?.uploadApi || "").replace(/\/$/, "");
 
 let pendingDeletion = null;
@@ -70,6 +72,10 @@ function getStoredToken() {
   return localStorage.getItem(TOKEN_STORAGE_KEY) || "";
 }
 
+function publicGitHubHeaders() {
+  return { Accept: "application/vnd.github+json" };
+}
+
 function canDeleteFiles() {
   return Boolean(UPLOAD_API || getStoredToken());
 }
@@ -80,6 +86,42 @@ function githubHeaders(token) {
     Authorization: `Bearer ${token}`,
     "X-GitHub-Api-Version": API_VERSION,
   };
+}
+
+async function getLatestUploadTime(filePath) {
+  const query = new URLSearchParams({
+    path: filePath,
+    sha: BRANCH,
+    per_page: "1",
+  });
+  const endpoint = `${COMMITS_ENDPOINT}?${query}`;
+  const token = getStoredToken();
+  let response = await fetch(endpoint, {
+    cache: "no-store",
+    headers: token ? githubHeaders(token) : publicGitHubHeaders(),
+  });
+
+  if (response.status === 401 && token) {
+    response = await fetch(endpoint, {
+      cache: "no-store",
+      headers: publicGitHubHeaders(),
+    });
+  }
+
+  if (!response.ok) {
+    throw new Error(`無法取得檔案上傳時間（${response.status}）`);
+  }
+
+  const commits = await response.json();
+  const latestCommit = Array.isArray(commits) ? commits[0] : null;
+  const commitDate = latestCommit?.commit?.committer?.date || latestCommit?.commit?.author?.date;
+  const timestamp = Date.parse(commitDate || "");
+
+  if (!Number.isFinite(timestamp)) {
+    throw new Error("GitHub API 回傳的檔案上傳時間不完整");
+  }
+
+  return timestamp;
 }
 
 function getSelectedFiles() {
@@ -244,15 +286,23 @@ async function loadFiles() {
       throw new Error("GitHub API 回傳格式不符預期");
     }
 
-    const files = entries
-      .filter(isVisibleFile)
-      .map(({ name, path, size }) => ({ name, path, size }))
-      .sort((a, b) =>
-        a.name.localeCompare(b.name, "zh-Hant", {
-          numeric: true,
-          sensitivity: "base",
-        }),
-      );
+    const files = await Promise.all(
+      entries
+        .filter(isVisibleFile)
+        .map(async ({ name, path, size }) => ({
+          name,
+          path,
+          size,
+          uploadedAt: await getLatestUploadTime(path),
+        })),
+    );
+    files.sort((a, b) =>
+      b.uploadedAt - a.uploadedAt ||
+      a.name.localeCompare(b.name, "zh-Hant", {
+        numeric: true,
+        sensitivity: "base",
+      }),
+    );
 
     if (files.length === 0) {
       fileCountElement.textContent = "尚無檔案";

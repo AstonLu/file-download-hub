@@ -119,8 +119,6 @@ h2 { margin-bottom: 5px; font-size: 1.05rem; font-weight: 650; letter-spacing: -
 .download-button:active:not(:disabled), .primary-button:active:not(:disabled), .secondary-button:active:not(:disabled) { transform: scale(0.97); }
 .download-button:disabled, .primary-button:disabled { cursor: wait; opacity: 0.65; }
 .button-spinner { width: 14px; height: 14px; border: 2px solid rgba(255, 255, 255, 0.45); border-top-color: #fff; border-radius: 50%; animation: spin 800ms linear infinite; }
-.archive-footer { display: flex; justify-content: center; gap: 8px; padding: 4px 24px calc(28px + var(--safe-bottom)); color: var(--ink-soft); font-size: 0.74rem; }
-
 .delete-dialog { width: min(calc(100% - 40px), 390px); padding: 0; border: 1px solid var(--line); border-radius: 19px; background: var(--surface); color: var(--ink); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2); }
 .delete-dialog::backdrop { background: rgba(19, 22, 21, 0.36); backdrop-filter: blur(3px); }
 .delete-dialog-content { padding: 25px; }
@@ -138,14 +136,13 @@ h2 { margin-bottom: 5px; font-size: 1.05rem; font-weight: 650; letter-spacing: -
 
 /* Private uploader */
 .upload-frame { width: min(calc(100% - 40px), 620px); padding-bottom: calc(48px + var(--safe-bottom)); }
-.upload-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 42px; }
+.upload-topbar { display: flex; align-items: center; margin-bottom: 42px; }
 .back-link { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-soft); font-size: 0.87rem; text-decoration: none; }
 .back-link:hover { color: var(--ink); }
 .back-link svg { width: 16px; height: 16px; }
 .owner-mark { color: var(--ink-soft); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; }
 .upload-intro { margin-bottom: 29px; }
-.upload-intro h1 { margin-bottom: 13px; font-size: clamp(2.15rem, 9vw, 3.5rem); }
-.upload-intro p:last-child { max-width: 28rem; margin: 0; color: var(--ink-soft); }
+.upload-intro h1 { margin-bottom: 0; font-size: clamp(2.15rem, 9vw, 3.5rem); }
 .connection-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 17px 21px; border-bottom: 1px solid var(--line); }
 .connection-state { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--ink-soft); font-size: 0.82rem; }
 .connection-state span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
